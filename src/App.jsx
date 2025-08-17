@@ -878,7 +878,7 @@ const SudokuInteractivo = () => {
       background = '#ff4444';
       color = 'white';
     } else if (className.includes('correct')) {
-      background = '#00ff44';
+      background = '#79f4a4ff';
       color = '#000';
     } else if (className.includes('same-number')) {
       background = 'rgba(255, 107, 157, 0.4)';
@@ -1396,13 +1396,13 @@ const SudokuInteractivo = () => {
             </div>
 
             <div style={{
-              marginTop: '15px',
-              padding: '10px',
+              marginTop: '32px',
+              padding: '15px',
               background: 'rgba(0, 0, 0, 0.3)',
               borderRadius: '8px',
-              fontSize: '11px',
+              fontSize: '14px',
               textAlign: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: '1px solid rgba(255, 255, 255, 0.1)',
             }}>
               <div style={{ marginBottom: '8px', color: '#00d4ff' }}>
                 <strong>🎯 Controles</strong>
