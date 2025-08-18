@@ -49,26 +49,26 @@ const SudokuInteractivo = () => {
     },
     experto: {
       initial: [
-        [0,0,0,6,0,0,4,0,0],
-        [7,0,0,0,0,3,6,0,0],
-        [0,0,0,0,9,1,0,8,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,5,0,1,8,0,0,0,3],
-        [0,0,0,3,0,6,0,4,5],
-        [0,4,0,2,0,0,0,6,0],
-        [9,0,3,0,0,0,0,0,0],
-        [0,2,0,0,0,0,1,0,0]
+        [5,3,0,0,7,0,0,0,0],
+        [6,0,0,1,9,5,0,0,0],
+        [0,9,8,0,0,0,0,6,0],
+        [8,0,0,0,6,0,0,0,3],
+        [4,0,0,8,0,3,0,0,1],
+        [7,0,0,0,2,0,0,0,6],
+        [0,6,0,0,0,0,2,8,0],
+        [0,0,0,4,1,9,0,0,5],
+        [0,0,0,0,8,0,0,7,9]
       ],
       solution: [
-        [1,3,2,6,7,8,4,9,5],
-        [7,8,9,4,5,3,6,1,2],
-        [4,6,5,7,9,1,3,8,2],
-        [6,1,4,9,2,7,8,5,3],
-        [2,5,7,1,8,4,9,2,1],
-        [8,9,1,3,5,6,2,4,7],
-        [5,4,8,2,1,9,7,6,4],
-        [9,7,3,8,6,5,5,3,8],
-        [3,2,6,5,4,2,1,8,9]
+        [5,3,4,6,7,8,9,1,2],
+        [6,7,2,1,9,5,3,4,8],
+        [1,9,8,3,4,2,5,6,7],
+        [8,5,9,7,6,1,4,2,3],
+        [4,2,6,8,5,3,7,9,1],
+        [7,1,3,9,2,4,8,5,6],
+        [9,6,1,5,3,7,2,8,4],
+        [2,8,7,4,1,9,6,3,5],
+        [3,4,5,2,8,6,1,7,9]
       ]
     }
   };
@@ -202,6 +202,9 @@ const SudokuInteractivo = () => {
       
       if (!vertex) return;
 
+      // Actualizar el tablero actual primero
+      this.currentBoard[row][col] = newValue;
+
       if (newValue === 0 && oldValue !== 0) {
         await this.removeVertex(index);
         setAnimationStatus(`Removido vértice (${row+1},${col+1})`);
@@ -210,8 +213,10 @@ const SudokuInteractivo = () => {
         
         if (oldValue === 0) {
           await this.createVertex(index);
-          await this.delay(this.animationSpeed / 2);
+          await this.delay(this.animationSpeed / 4);
           await this.createEdgesForVertex(index);
+          // También crear aristas desde otros vértices hacia este nuevo vértice
+          await this.createEdgesToVertex(index);
           setAnimationStatus(`Creado vértice (${row+1},${col+1}) = ${newValue}`);
         } else {
           await this.updateVertex(index);
@@ -397,10 +402,62 @@ const SudokuInteractivo = () => {
       for (const targetIndex of connections) {
         const targetVertex = this.vertices[targetIndex];
         if (targetVertex.created) {
-          await this.createEdge(index, targetIndex);
-          await this.delay(50);
+          // Evitar duplicar aristas
+          const edgeExists = this.edgeMeshes.some(edge => 
+            (edge.userData.from === index && edge.userData.to === targetIndex) ||
+            (edge.userData.from === targetIndex && edge.userData.to === index)
+          );
+          
+          if (!edgeExists) {
+            await this.createEdge(index, targetIndex);
+            await this.delay(30);
+          }
         }
       }
+    }
+
+    async createEdgesToVertex(index) {
+      const vertex = this.vertices[index];
+      if (!vertex.created) return;
+
+      // Buscar todos los vértices existentes que deberían conectarse a este nuevo vértice
+      for (let i = 0; i < this.vertices.length; i++) {
+        if (i === index || !this.vertices[i].created) continue;
+        
+        const otherVertex = this.vertices[i];
+        const shouldConnect = this.shouldVerticesConnect(vertex.row, vertex.col, otherVertex.row, otherVertex.col);
+        
+        if (shouldConnect) {
+          // Verificar si la arista ya existe
+          const edgeExists = this.edgeMeshes.some(edge => 
+            (edge.userData.from === index && edge.userData.to === i) ||
+            (edge.userData.from === i && edge.userData.to === index)
+          );
+          
+          if (!edgeExists) {
+            await this.createEdge(i, index);
+            await this.delay(30);
+          }
+        }
+      }
+    }
+
+    shouldVerticesConnect(row1, col1, row2, col2) {
+      // Misma fila
+      if (row1 === row2) return true;
+      
+      // Misma columna  
+      if (col1 === col2) return true;
+      
+      // Misma caja 3x3
+      const box1Row = Math.floor(row1 / 3);
+      const box1Col = Math.floor(col1 / 3);
+      const box2Row = Math.floor(row2 / 3);
+      const box2Col = Math.floor(col2 / 3);
+      
+      if (box1Row === box2Row && box1Col === box2Col) return true;
+      
+      return false;
     }
 
     async removeEdgesForVertex(index) {
@@ -528,6 +585,7 @@ const SudokuInteractivo = () => {
       this.calculateVertexPositions(board);
       this.clearGraph();
       
+      // Crear todos los vértices primero
       for (let i = 0; i < this.vertices.length; i++) {
         const vertex = this.vertices[i];
         if (vertex.value !== 0) {
@@ -535,21 +593,29 @@ const SudokuInteractivo = () => {
         }
       }
 
+      // Después crear todas las aristas
       setTimeout(() => {
         for (let i = 0; i < this.vertices.length; i++) {
           const vertex = this.vertices[i];
           if (vertex.created) {
-            const connections = this.getConnections(vertex.row, vertex.col);
-            connections.forEach(targetIndex => {
-              const targetVertex = this.vertices[targetIndex];
-              if (targetVertex.created && i < targetIndex) {
-                this.createEdge(i, targetIndex);
+            // Crear aristas con todos los vértices posteriores para evitar duplicados
+            for (let j = i + 1; j < this.vertices.length; j++) {
+              const otherVertex = this.vertices[j];
+              if (otherVertex.created) {
+                const shouldConnect = this.shouldVerticesConnect(
+                  vertex.row, vertex.col, 
+                  otherVertex.row, otherVertex.col
+                );
+                
+                if (shouldConnect) {
+                  this.createEdge(i, j);
+                }
               }
-            });
+            }
           }
         }
         this.updateStatsCallback();
-      }, 500);
+      }, 800);
     }
 
     clearGraph() {
@@ -569,7 +635,9 @@ const SudokuInteractivo = () => {
     }
 
     updateStatsCallback() {
-      this.updateStats(this.vertexMeshes.length, this.edgeMeshes.length);
+      if (this.updateStats && typeof this.updateStats === 'function') {
+        this.updateStats(this.vertexMeshes.length, this.edgeMeshes.length);
+      }
     }
 
     toggleAutoRotation() {
@@ -636,7 +704,7 @@ const SudokuInteractivo = () => {
     setSolution(newSolution);
     setGivenCells(newGivenCells);
     setErrorCount(0);
-    setSelectedCell(null);
+    setSelectedCell({ row: 0, col: 0 }); // Inicializar con una celda seleccionada
     
     // Start timer
     if (gameTimerRef.current) clearInterval(gameTimerRef.current);
@@ -689,6 +757,32 @@ const SudokuInteractivo = () => {
 
   const selectCell = (row, col) => {
     if (givenCells.has(`${row}-${col}`)) return;
+    setSelectedCell({ row, col });
+  };
+
+  const moveSelection = (direction) => {
+    if (!selectedCell) {
+      setSelectedCell({ row: 0, col: 0 });
+      return;
+    }
+
+    let { row, col } = selectedCell;
+    
+    switch (direction) {
+      case 'up':
+        row = Math.max(0, row - 1);
+        break;
+      case 'down':
+        row = Math.min(8, row + 1);
+        break;
+      case 'left':
+        col = Math.max(0, col - 1);
+        break;
+      case 'right':
+        col = Math.min(8, col + 1);
+        break;
+    }
+    
     setSelectedCell({ row, col });
   };
 
@@ -748,6 +842,7 @@ const SudokuInteractivo = () => {
   };
 
   const autoFill = () => {
+    // Buscar celdas vacías
     const emptyCells = [];
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
@@ -758,14 +853,31 @@ const SudokuInteractivo = () => {
     }
     
     if (emptyCells.length > 0) {
+      // Elegir una celda vacía aleatoria
       const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
       const correctValue = solution[randomCell.row][randomCell.col];
       
+      // Actualizar el tablero
+      const newBoard = [...board];
+      newBoard[randomCell.row][randomCell.col] = correctValue;
+      setBoard(newBoard);
+
+      // Seleccionar la celda
       setSelectedCell(randomCell);
-      placeNumber(correctValue);
+
+      // Actualizar el grafo
+      if (graphVisualizerRef.current) {
+        graphVisualizerRef.current.animateGraphUpdate(
+          randomCell.row, 
+          randomCell.col, 
+          0, 
+          correctValue
+        );
+        setLastMove(`Auto (${randomCell.row+1},${randomCell.col+1})=${correctValue}`);
+      }
     }
   };
-
+  
   const resetGraph = () => {
     if (graphVisualizerRef.current) {
       graphVisualizerRef.current.clearGraph();
@@ -790,16 +902,42 @@ const SudokuInteractivo = () => {
     }
   };
 
-  // Keyboard event handler
+  // Keyboard event handler mejorado
   useEffect(() => {
     const handleKeyDown = (event) => {
       const key = event.key;
       
+      // Prevenir el comportamiento por defecto de las teclas de navegación
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) {
+        event.preventDefault();
+      }
+      
+      // Números del 1 al 9
       if (key >= '1' && key <= '9') {
         const number = parseInt(key);
         placeNumber(number);
-      } else if (key === 'Delete' || key === 'Backspace') {
+      } 
+      // Borrar celda
+      else if (key === 'Delete' || key === 'Backspace' || key === '0') {
         clearCell();
+      }
+      // Navegación con flechas
+      else if (key === 'ArrowUp' || key === 'w' || key === 'W') {
+        moveSelection('up');
+      } else if (key === 'ArrowDown' || key === 's' || key === 'S') {
+        moveSelection('down');
+      } else if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+        moveSelection('left');
+      } else if (key === 'ArrowRight' || key === 'd' || key === 'D') {
+        moveSelection('right');
+      }
+      // Funciones especiales
+      else if (key === 'n' || key === 'N') {
+        initializeGame(); // Nuevo juego
+      } else if (key === 'h' || key === 'H') {
+        autoFill(); // Ayuda/Auto-fill
+      } else if (key === 'r' || key === 'R') {
+        resetGraph(); // Reset grafo
       }
     };
 
@@ -1294,7 +1432,7 @@ const SudokuInteractivo = () => {
                   e.target.style.transform = 'none';
                 }}
               >
-                🎮 Nuevo
+                🎮 Nuevo (N)
               </button>
               
               <button 
@@ -1320,7 +1458,7 @@ const SudokuInteractivo = () => {
                   e.target.style.transform = 'none';
                 }}
               >
-                🗑️ Borrar
+                🗑️ Borrar (Del)
               </button>
               
               <button 
@@ -1346,7 +1484,7 @@ const SudokuInteractivo = () => {
                   e.target.style.transform = 'none';
                 }}
               >
-                ⚡ Auto
+                ⚡ Auto (H)
               </button>
             </div>
 
@@ -1395,28 +1533,7 @@ const SudokuInteractivo = () => {
               </div>
             </div>
 
-            <div style={{
-              marginTop: '32px',
-              padding: '15px',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: '8px',
-              fontSize: '14px',
-              textAlign: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}>
-              <div style={{ marginBottom: '8px', color: '#00d4ff' }}>
-                <strong>🎯 Controles</strong>
-              </div>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#ff6b9d' }}>Click:</span> Seleccionar celda
-              </div>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#00ff88' }}>1-9:</span> Colocar número
-              </div>
-              <div>
-                <span style={{ color: '#7b68ee' }}>Borrar/Supr:</span> Limpiar celda
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
