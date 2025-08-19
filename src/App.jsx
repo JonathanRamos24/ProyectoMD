@@ -49,15 +49,15 @@ const SudokuInteractivo = () => {
     },
     experto: {
       initial: [
-        [5,3,0,0,7,0,0,0,0],
-        [6,0,0,1,9,5,0,0,0],
-        [0,9,8,0,0,0,0,6,0],
-        [8,0,0,0,6,0,0,0,3],
-        [4,0,0,8,0,3,0,0,1],
-        [7,0,0,0,2,0,0,0,6],
-        [0,6,0,0,0,0,2,8,0],
-        [0,0,0,4,1,9,0,0,5],
-        [0,0,0,0,8,0,0,7,9]
+        [0,3,0,0,7,0,0,0,0],
+        [6,0,0,1,0,5,0,0,0],
+        [0,0,8,0,0,0,0,6,0],
+        [8,0,0,0,0,0,0,0,3],
+        [0,0,0,8,0,0,0,0,1],
+        [7,0,0,0,2,0,0,0,0],
+        [0,6,0,0,0,0,0,8,0],
+        [0,0,0,4,0,0,0,0,5],
+        [0,0,0,0,8,0,0,7,0]
       ],
       solution: [
         [5,3,4,6,7,8,9,1,2],
@@ -1126,7 +1126,7 @@ const SudokuInteractivo = () => {
                   border: '2px solid #00d4ff',
                   borderRadius: '8px',
                   cursor: 'pointer',
-                  fontSize: '11px',
+                  fontSize: '13px',
                   fontWeight: '600',
                   transition: 'all 0.3s ease',
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -1152,7 +1152,7 @@ const SudokuInteractivo = () => {
                   border: '2px solid #7b68ee',
                   borderRadius: '8px',
                   cursor: 'pointer',
-                  fontSize: '11px',
+                  fontSize: '13px',
                   fontWeight: '600',
                   transition: 'all 0.3s ease',
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -1178,7 +1178,7 @@ const SudokuInteractivo = () => {
                 background: 'rgba(255, 255, 255, 0.1)',
                 padding: '3px 8px',
                 borderRadius: '8px',
-                fontSize: '10px'
+                fontSize: '13px'
               }}>
                 <label>Animación:</label>
                 <input 
@@ -1220,16 +1220,14 @@ const SudokuInteractivo = () => {
               
               <div style={{
                 position: 'absolute',
-                top: '10px',
-                left: '10px',
-                right: '10px',
+                top: '5px',
+                left: '5px',
+                right: '5px',
                 zIndex: 100,
                 textAlign: 'center',
                 padding: '8px',
-                background: 'rgba(0, 0, 0, 0.8)',
+                background: 'rgba(0, 0, 0, 0.3)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
               }}>
                 <h2 style={{
                   fontSize: '1em',
@@ -1239,7 +1237,6 @@ const SudokuInteractivo = () => {
                   WebkitTextFillColor: 'transparent',
                   marginBottom: '5px'
                 }}>
-                  Visualización del Grafo de Sudoku
                 </h2>
                 <div style={{
                   display: 'flex',
@@ -1251,7 +1248,7 @@ const SudokuInteractivo = () => {
                     background: 'rgba(0, 212, 255, 0.2)',
                     padding: '4px 8px',
                     borderRadius: '4px',
-                    fontSize: '10px'
+                    fontSize: '13px'
                   }}>
                     <span>Vértices: </span>
                     <span>{verticesCount}</span>
@@ -1260,7 +1257,7 @@ const SudokuInteractivo = () => {
                     background: 'rgba(0, 212, 255, 0.2)',
                     padding: '4px 8px',
                     borderRadius: '4px',
-                    fontSize: '10px'
+                    fontSize: '13px'
                   }}>
                     <span>Aristas: </span>
                     <span>{edgesCount}</span>
@@ -1269,7 +1266,7 @@ const SudokuInteractivo = () => {
                     background: 'rgba(0, 212, 255, 0.2)',
                     padding: '4px 8px',
                     borderRadius: '4px',
-                    fontSize: '10px'
+                    fontSize: '13px'
                   }}>
                     <span>Último: </span>
                     <span>{lastMove}</span>
@@ -1285,7 +1282,7 @@ const SudokuInteractivo = () => {
                 borderRadius: '6px',
                 padding: '8px',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                fontSize: '9px'
+                fontSize: '14px'
               }}>
                 <h4 style={{ color: '#00d4ff', marginBottom: '8px' }}>Conexiones</h4>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px' }}>
@@ -1416,7 +1413,7 @@ const SudokuInteractivo = () => {
                   border: '2px solid #00d4ff',
                   borderRadius: '10px',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   transition: 'all 0.3s ease',
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -1442,7 +1439,7 @@ const SudokuInteractivo = () => {
                   border: '2px solid #7b68ee',
                   borderRadius: '10px',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   transition: 'all 0.3s ease',
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -1468,7 +1465,7 @@ const SudokuInteractivo = () => {
                   border: '2px solid #00ff88',
                   borderRadius: '10px',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   transition: 'all 0.3s ease',
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -1499,7 +1496,7 @@ const SudokuInteractivo = () => {
                 background: 'rgba(0, 212, 255, 0.2)',
                 padding: '8px 12px',
                 borderRadius: '10px',
-                fontSize: '12px',
+                fontSize: '14px',
                 textAlign: 'center',
                 minWidth: '70px',
                 border: '1px solid rgba(0, 212, 255, 0.3)'
@@ -1511,7 +1508,7 @@ const SudokuInteractivo = () => {
                 background: 'rgba(255, 107, 157, 0.2)',
                 padding: '8px 12px',
                 borderRadius: '10px',
-                fontSize: '12px',
+                fontSize: '14px',
                 textAlign: 'center',
                 minWidth: '70px',
                 border: '1px solid rgba(255, 107, 157, 0.3)'
@@ -1523,7 +1520,7 @@ const SudokuInteractivo = () => {
                 background: 'rgba(0, 255, 136, 0.2)',
                 padding: '8px 12px',
                 borderRadius: '10px',
-                fontSize: '12px',
+                fontSize: '14px',
                 textAlign: 'center',
                 minWidth: '70px',
                 border: '1px solid rgba(0, 255, 136, 0.3)'
